@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>123SoldCash — SEO War Room</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f5f2;color:#1a1a1a;font-size:13px;padding:1.25rem 1rem}
+.container{max-width:1400px;margin:0 auto}
+h1{font-size:17px;font-weight:700;color:#1B3A6B;margin-bottom:2px}
+.subtitle{font-size:11px;color:#888;margin-bottom:.2rem}
+.stale-note{font-size:11px;color:#BA7517;margin-bottom:1rem}
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem}
+.sc{background:#fff;border-radius:8px;border:0.5px solid #e0e0e0;padding:10px;text-align:center}
+.sc .num{font-size:20px;font-weight:700}
+.sc .lbl{font-size:10px;color:#888;margin-top:2px}
+.tabs{display:flex;margin-bottom:.75rem;border:0.5px solid #ddd;border-radius:8px;overflow:hidden;background:#fff}
+.tab{flex:1;font-size:11px;font-weight:500;padding:9px 4px;border:none;background:transparent;color:#666;cursor:pointer;border-right:0.5px solid #ddd;text-align:center}
+.tab:last-child{border-right:none}
+.tab.on{background:#E6F1FB;color:#0C447C;font-weight:700}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+.filter-bar{display:flex;gap:5px;flex-wrap:wrap}
+.fb{font-size:11px;padding:3px 10px;border-radius:12px;border:0.5px solid #ccc;background:transparent;color:#666;cursor:pointer}
+.fb.on{background:#1B3A6B;color:#fff;border-color:transparent}
+.right-bar{display:flex;gap:6px;align-items:center}
+.search-box{font-size:12px;padding:5px 10px;border:0.5px solid #ccc;border-radius:6px;width:180px;outline:none}
+.search-box:focus{border-color:#1B3A6B}
+.btn-add{font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;background:#1D9E75;color:#fff;border:none;cursor:pointer}
+.btn-add:hover{background:#158a63}
+.btn-save{font-size:11px;font-weight:600;padding:5px 14px;border-radius:6px;background:#1B3A6B;color:#fff;border:none;cursor:pointer}
+.btn-save:hover{background:#0C447C}
+.btn-reset{font-size:11px;padding:5px 12px;border-radius:6px;background:#fff;color:#888;border:0.5px solid #ccc;cursor:pointer}
+.count{font-size:11px;color:#888;margin-bottom:5px}
+.tbl-wrap{border:0.5px solid #e0e0e0;border-radius:8px;overflow:hidden;background:#fff;overflow-x:auto;margin-bottom:.75rem}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:1000px}
+th{font-size:10px;font-weight:600;color:#888;text-align:left;padding:8px 10px;border-bottom:0.5px solid #e8e8e8;background:#f8f8f6;white-space:nowrap;text-transform:uppercase;letter-spacing:.3px}
+td{padding:6px 10px;border-bottom:0.5px solid #f0f0ee;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf8}
+tr.stale td{background:#fffde7}
+tr.stale:hover td{background:#fff9c4}
+.page-link{font-weight:600;color:#1B3A6B;text-decoration:none;font-size:12px}
+.page-link:hover{text-decoration:underline}
+.url-small{font-family:'Courier New',monospace;font-size:10px;color:#bbb;display:block;margin-top:1px}
+.sel{font-size:11px;padding:2px 5px;border:0.5px solid #ddd;border-radius:4px;background:#fff;outline:none;cursor:pointer;color:#333}
+.sel:focus{border-color:#1B3A6B}
+.date-input{font-size:11px;padding:2px 5px;border:0.5px solid #ddd;border-radius:4px;background:#fff;outline:none;color:#555;width:105px}
+.date-input:focus{border-color:#1B3A6B}
+.notes-input{font-size:11px;padding:2px 6px;border:0.5px solid transparent;border-radius:4px;background:transparent;width:180px;outline:none;color:#555;font-family:Arial,sans-serif}
+.notes-input:hover{border-color:#ddd;background:#fafafa}
+.notes-input:focus{border-color:#1B3A6B;background:#fff}
+.blog-link{font-size:11px;color:#1D9E75;text-decoration:none;font-weight:600}
+.blog-link:hover{text-decoration:underline}
+.btn-del{font-size:10px;padding:2px 6px;border-radius:4px;background:#FCEBEB;color:#791F1F;border:none;cursor:pointer;opacity:.6}
+.btn-del:hover{opacity:1}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9997;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:12px;padding:1.75rem;width:480px;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.modal-box h3{font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:1rem}
+.modal-box label{font-size:11px;color:#888;display:block;margin-bottom:3px;margin-top:10px}
+.modal-box input,.modal-box select{width:100%;padding:7px 10px;font-size:12px;border:0.5px solid #ccc;border-radius:5px;outline:none}
+.modal-box input:focus,.modal-box select:focus{border-color:#1B3A6B}
+.modal-btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.modal-save{padding:7px 18px;background:#1B3A6B;color:#fff;border:none;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer}
+.modal-cancel{padding:7px 14px;background:#fff;color:#666;border:0.5px solid #ccc;border-radius:5px;font-size:12px;cursor:pointer}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:#f5f5f2;display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:2.5rem 2rem;width:320px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.login-box h2{font-size:16px;font-weight:700;color:#1B3A6B;margin-bottom:4px}
+.login-box p{font-size:12px;color:#888;margin-bottom:1.5rem}
+.login-box input{width:100%;padding:10px 12px;font-size:13px;border:0.5px solid #ccc;border-radius:6px;margin-bottom:10px;outline:none}
+.login-box button{width:100%;padding:10px;font-size:13px;font-weight:600;background:#1B3A6B;color:#fff;border:none;border-radius:6px;cursor:pointer}
+.login-error{font-size:11px;color:#E24B4A;margin-top:8px;display:none}
+.branding{text-align:center;margin-top:1rem;font-size:11px;color:#bbb}
+.saved-msg{font-size:11px;color:#1D9E75;margin-left:4px}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <h2>123SoldCash — SEO War Room</h2>
+    <p>Internal access only</p>
+    <input type="password" id="pwd-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button onclick="checkPwd()">Enter</button>
+    <div class="login-error" id="pwd-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- ADD PAGE MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal-box">
+    <h3>➕ Add New Page</h3>
+    <label>Page Name</label>
+    <input id="m-name" placeholder="e.g. Niche — Old Roof">
+    <label>URL (relative)</label>
+    <input id="m-url" placeholder="e.g. /how-we-can-help/sell-house-old-roof/">
+    <label>Blog de suporte 1 (slug, niche pages only)</label>
+    <input id="m-blog1" placeholder="e.g. sell-house-old-roof-florida-cash">
+    <label>Blog de suporte 2 (slug, opcional)</label>
+    <input id="m-blog2" placeholder="">
+    <label>Tab</label>
+    <select id="m-tab">
+      <option value="niche">Niche pages</option>
+      <option value="blog">Blog posts</option>
+      <option value="city">City pages</option>
+      <option value="orphan">Blogs sem niche</option>
+    </select>
+    <div class="modal-btn-row">
+      <button class="modal-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-save" onclick="addPage()">Add Page</button>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="main-app" style="display:none">
+  <h1>123SoldCash.com — SEO War Room</h1>
+  <div class="subtitle">Team workflow tracker &nbsp;·&nbsp; April 2026 &nbsp;·&nbsp; <span id="total-count">57</span> pages</div>
+  <div class="stale-note">⚠️ Yellow rows = no update in 7+ days</div>
+
+  <div class="summary">
+    <div class="sc"><div class="num" id="cnt-pending"  style="color:#888">0</div><div class="lbl">Pending</div></div>
+    <div class="sc"><div class="num" id="cnt-working"  style="color:#E85D24">0</div><div class="lbl">Working</div></div>
+    <div class="sc"><div class="num" id="cnt-reviewed" style="color:#BA7517">0</div><div class="lbl">Reviewed</div></div>
+    <div class="sc"><div class="num" id="cnt-approval" style="color:#534AB7">0</div><div class="lbl">Approval</div></div>
+    <div class="sc"><div class="num" id="cnt-indexed"  style="color:#1D9E75">0</div><div class="lbl">Indexed</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="showTab('niche',this)" id="tab-niche">Niche pages</button>
+    <button class="tab"    onclick="showTab('blog',this)"  id="tab-blog">Blog posts</button>
+    <button class="tab"    onclick="showTab('city',this)"  id="tab-city">City pages</button>
+    <button class="tab"    onclick="showTab('orphan',this)"id="tab-orphan">Blogs sem niche</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="filter-bar" id="filter-bar"></div>
+    <div class="right-bar">
+      <input class="search-box" id="search-box" placeholder="Search..." oninput="renderActive()">
+      <button class="btn-add" onclick="openModal()">➕ Add Page</button>
+      <button class="btn-reset" onclick="resetAll()">Reset all</button>
+      <button class="btn-save" onclick="saveAll()">💾 Save</button>
+      <span class="saved-msg" id="saved-msg" style="display:none">✓ Saved</span>
+    </div>
+  </div>
+  <div class="count" id="count"></div>
+
+  <div class="tbl-wrap">
+    <table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+  </div>
+  <div class="branding">123SoldCash.com · SEO Strategy Team · Confidential / Internal · April 2026</div>
+</div>
+
+<script>
+var PASS='azul123';
+var LS_KEY='wr_data_v2';
+var LS_PAGES='wr_pages_v2';
+var activeTab='niche';
+var activeFilter='all';
+var TODAY=new Date();
+
+var NICHE_PAGES=[
+  {id:'n01',name:'Water Damage',       url:'/how-we-can-help/sell-water-damaged-house/',             blog1:'water-damage-mold-florida',           blog2:''},
+  {id:'n02',name:'Downsize',           url:'/how-we-can-help/sell-house-to-downsize/',               blog1:'downsize-florida-sell-home-fast',     blog2:''},
+  {id:'n03',name:'Fire Damage',        url:'/how-we-can-help/sell-fire-damaged-house/',              blog1:'selling-fire-damaged-house-florida',  blog2:''},
+  {id:'n04',name:'Old Roof',           url:'/how-we-can-help/sell-house-old-roof-florida/',          blog1:'sell-house-old-roof-florida-cash',    blog2:''},
+  {id:'n05',name:'Home Left in Trust', url:'/how-we-can-help/sell-house-left-in-trust/',             blog1:'selling-house-in-trust-florida',      blog2:'force-sale-jointly-owned-property'},
+  {id:'n06',name:'Inherited / Probate',url:'/how-we-can-help/sell-your-inherited-or-probate-house/', blog1:'selling-inherited-house-florida',     blog2:'do-all-heirs-have-to-agree'},
+  {id:'n07',name:'Major Repairs',      url:'/how-we-can-help/sell-house-major-repairs-florida/',     blog1:'sell-house-too-many-repairs-florida', blog2:''},
+  {id:'n08',name:'Foreclosure',        url:'/how-we-can-help/sell-house-in-foreclosure/',            blog1:'how-to-stop-foreclosure-in-florida',  blog2:'tax-lien-stop-foreclosure'},
+  {id:'n09',name:'Bad Tenant',         url:'/how-we-can-help/sell-house-with-bad-tenant/',           blog1:'bad-tenant-destroying-rental-florida',blog2:''},
+  {id:'n10',name:'Squatters',          url:'/how-we-can-help/sell-house-with-squatters-florida/',    blog1:'florida-squatters-rights-law',        blog2:''},
+  {id:'n11',name:'Divorce',            url:'/how-we-can-help/sell-house-during-divorce/',            blog1:'selling-house-during-divorce-mistakes',blog2:''},
+  {id:'n12',name:'Hurricane Damage',   url:'/how-we-can-help/sell-house-hurricane-damage/',          blog1:'hurricane-destroyed-florida-home',    blog2:''},
+  {id:'n13',name:'Condemned',          url:'/how-we-can-help/sell-condemned-house/',                 blog1:'selling-condemned-house-florida',     blog2:''},
+  {id:'n14',name:'Code Violation',     url:'/how-we-can-help/sell-house-code-violations/',           blog1:'selling-house-code-violations-florida',blog2:''},
+  {id:'n15',name:'Financial Hardship', url:'/how-we-can-help/sell-house-financial-hardship/',        blog1:'sell-house-before-bankruptcy-florida',blog2:'sell-house-gambling-debt'},
+  {id:'n16',name:'Owner Incarcerated', url:'/how-we-can-help/sell-house-owner-incarcerated/',        blog1:'selling-house-from-jail-florida',     blog2:''},
+  {id:'n17',name:'Delinquent Taxes',   url:'/how-we-can-help/sell-house-delinquent-taxes/',          blog1:'',                                    blog2:''},
+];
+var BLOG_PAGES=[
+  {id:'b01',name:'Downsize Florida Sell Home Fast Cash',       url:'/blog/downsize-florida-sell-home-fast-cash/'},
+  {id:'b02',name:'Selling House Water Damage Mold Florida',    url:'/blog/selling-house-water-damage-mold-florida/'},
+  {id:'b03',name:'All Heirs Agree to Sell Florida',            url:'/blog/do-all-heirs-have-to-agree-to-sell-property-florida/'},
+  {id:'b04',name:'How to Stop Foreclosure Florida',            url:'/blog/how-to-stop-foreclosure-in-florida/'},
+  {id:'b05',name:'Selling Inherited House Florida',            url:'/blog/selling-inherited-house-florida/'},
+  {id:'b06',name:'Selling Condemned House Florida',            url:'/blog/selling-condemned-house-florida/'},
+  {id:'b07',name:'Selling House Code Violations',              url:'/blog/selling-house-code-violations-florida/'},
+  {id:'b08',name:'Selling House in Trust Florida',             url:'/blog/selling-house-in-trust-florida/'},
+  {id:'b09',name:'Divorce Selling Mistakes Florida',           url:'/blog/selling-house-during-divorce-mistakes/'},
+  {id:'b10',name:'Florida Squatters Rights Law',               url:'/blog/florida-squatters-rights-law/'},
+  {id:'b11',name:'Force Sale Jointly Owned Property',          url:'/blog/force-sale-jointly-owned-property-florida/'},
+  {id:'b12',name:'Hurricane Home Options Beyond Insurance',    url:'/blog/hurricane-destroyed-your-florida-home-your-options-beyond-insurance/'},
+  {id:'b13',name:'Selling House From Jail Florida',            url:'/blog/selling-house-from-jail-florida/'},
+  {id:'b14',name:'Bad Tenant Destroying Rental',               url:'/blog/bad-tenant-destroying-rental-florida/'},
+  {id:'b15',name:'Family Wont Leave Inherited House',          url:'/blog/family-wont-leave-inherited-house-florida/'},
+  {id:'b16',name:'Sell House Before Bankruptcy',               url:'/blog/sell-house-before-bankruptcy-florida/'},
+  {id:'b17',name:'Sell House Gambling Debt Florida',           url:'/blog/sell-house-gambling-debt-florida-cash/'},
+  {id:'b18',name:'Sell House Too Many Repairs',                url:'/blog/sell-house-too-many-repairs-florida-cash/'},
+  {id:'b19',name:'Sell House Old Roof Florida Cash',           url:'/blog/sell-house-old-roof-florida-cash/'},
+  {id:'b20',name:'Tax Lien Stop Foreclosure Florida',          url:'/blog/tax-lien-stop-foreclosure-florida/'},
+  {id:'b21',name:'Sell Elderly Parent House Assisted Living',  url:'/blog/sell-elderly-parent-house-assisted-living-florida/'},
+];
+var CITY_PAGES=[
+  {id:'c01',name:'Miami',           url:'/locations/fl/sell-my-house-in-miami-florida/'},
+  {id:'c02',name:'Fort Lauderdale', url:'/locations/fl/sell-my-house-in-fort-lauderdale-florida/'},
+  {id:'c03',name:'Broward County',  url:'/locations/fl/broward-county/'},
+  {id:'c04',name:'Palm Beach',      url:'/locations/fl/sell-my-house-in-palm-beach-florida/'},
+  {id:'c05',name:'Hollywood',       url:'/locations/fl/sell-my-house-in-hollywood-florida/'},
+  {id:'c06',name:'Pompano Beach',   url:'/locations/fl/sell-my-house-in-pompano-beach-florida/'},
+  {id:'c07',name:'Boca Raton',      url:'/locations/fl/sell-my-house-in-boca-raton-florida/'},
+  {id:'c08',name:'Deerfield Beach', url:'/locations/fl/sell-my-house-in-deerfield-beach-florida/'},
+  {id:'c09',name:'Coral Springs',   url:'/locations/fl/sell-my-house-in-coral-springs-florida/'},
+  {id:'c10',name:'Miramar',         url:'/locations/fl/sell-my-house-in-miramar-florida/'},
+  {id:'c11',name:'Pembroke Pines',  url:'/locations/fl/sell-my-house-in-pembroke-pines-florida/'},
+  {id:'c12',name:'Hialeah',         url:'/locations/fl/sell-my-house-in-hialeah-florida/'},
+  {id:'c13',name:'Homestead',       url:'/locations/fl/sell-my-house-in-homestead-florida/'},
+  {id:'c14',name:'Sunrise',         url:'/locations/fl/sell-my-house-in-sunrise-florida/'},
+];
+var ORPHAN_PAGES=[
+  {id:'o01',name:'Elderly Assisted Living Blog',      url:'/blog/sell-elderly-parent-house-assisted-living-florida/'},
+  {id:'o02',name:'Gambling Debt Blog',                url:'/blog/sell-house-gambling-debt-florida-cash/'},
+  {id:'o03',name:'Selling House From Jail Blog',      url:'/blog/selling-house-from-jail-florida/'},
+  {id:'o04',name:'Family Wont Leave Blog',            url:'/blog/family-wont-leave-inherited-house-florida/'},
+  {id:'o05',name:'Sell House Before Bankruptcy Blog', url:'/blog/sell-house-before-bankruptcy-florida/'},
+];
+
+var EXTRA={niche:[],blog:[],city:[],orphan:[]};
+var WORKFLOWS=['Pending','Working','Reviewed','Approval','Indexed'];
+var ASSIGNED=['—','Manager','Edsel','Luiza','Rodolfo','Zach','Chris'];
+var state={};
+
+function allPages(){
+  var a=[];
+  [NICHE_PAGES,BLOG_PAGES,CITY_PAGES,ORPHAN_PAGES].forEach(function(arr){arr.forEach(function(p){a.push(p);});});
+  Object.keys(EXTRA).forEach(function(k){EXTRA[k].forEach(function(p){a.push(p);});});
+  return a;
+}
+
+function pagesForTab(tab){
+  var base={niche:NICHE_PAGES,blog:BLOG_PAGES,city:CITY_PAGES,orphan:ORPHAN_PAGES}[tab]||[];
+  return base.concat(EXTRA[tab]||[]);
+}
+
+function updateTabLabels(){
+  ['niche','blog','city','orphan'].forEach(function(t){
+    var el=document.getElementById('tab-'+t);
+    if(!el)return;
+    var labels={niche:'Niche pages',blog:'Blog posts',city:'City pages',orphan:'Blogs sem niche'};
+    el.textContent=labels[t]+' ('+pagesForTab(t).length+')';
+  });
+  var total=allPages().length;
+  document.getElementById('total-count').textContent=total;
+}
+
+function loadState(){
+  var saved={};
+  try{saved=JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){}
+  try{var ep=JSON.parse(localStorage.getItem(LS_PAGES));if(ep)EXTRA=ep;}catch(e){}
+  allPages().forEach(function(p){
+    state[p.id]=saved[p.id]||{workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
+  });
+}
+
+function saveState(){
+  localStorage.setItem(LS_KEY,JSON.stringify(state));
+  localStorage.setItem(LS_PAGES,JSON.stringify(EXTRA));
+}
+
+function saveAll(){
+  saveState();
+  var m=document.getElementById('saved-msg');
+  m.style.display='inline';
+  setTimeout(function(){m.style.display='none';},2500);
+}
+
+function resetAll(){
+  if(!confirm('Reset all workflow statuses to Pending?'))return;
+  allPages().forEach(function(p){state[p.id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:state[p.id]?state[p.id].notes:''};});
+  saveState();renderActive();updateSummary();
+}
+
+function updateSummary(){
+  var cnt={Pending:0,Working:0,Reviewed:0,Approval:0,Indexed:0};
+  allPages().forEach(function(p){var w=(state[p.id]||{}).workflow||'Pending';if(cnt[w]!==undefined)cnt[w]++;});
+  document.getElementById('cnt-pending').textContent=cnt.Pending;
+  document.getElementById('cnt-working').textContent=cnt.Working;
+  document.getElementById('cnt-reviewed').textContent=cnt.Reviewed;
+  document.getElementById('cnt-approval').textContent=cnt.Approval;
+  document.getElementById('cnt-indexed').textContent=cnt.Indexed;
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function daysSince(d){if(!d)return 999;return Math.floor((TODAY-new Date(d))/86400000);}
+
+function renderFilters(){
+  var bar=document.getElementById('filter-bar');bar.innerHTML='';
+  [{val:'all',label:'All'},{val:'Pending',label:'Pending'},{val:'Working',label:'Working'},{val:'Reviewed',label:'Reviewed'},{val:'Approval',label:'Approval'},{val:'Indexed',label:'Indexed'}].forEach(function(f,i){
+    var btn=document.createElement('button');
+    btn.className='fb'+(i===0?' on':'');
+    btn.textContent=f.label;
+    btn.setAttribute('data-val',f.val);
+    btn.addEventListener('click',function(){
+      activeFilter=f.val;
+      document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});
+      btn.classList.add('on');
+      renderActive();
+    });
+    bar.appendChild(btn);
+  });
+}
+
+function showTab(tab,btn){
+  activeTab=tab;activeFilter='all';
+  document.getElementById('search-box').value='';
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  btn.classList.add('on');
+  renderFilters();renderActive();
+}
+
+function renderActive(){
+  var pages=pagesForTab(activeTab);
+  var s=(document.getElementById('search-box').value||'').toLowerCase();
+  var isNiche=activeTab==='niche';
+  var rows=pages.filter(function(p){
+    var w=(state[p.id]||{}).workflow||'Pending';
+    if(activeFilter!=='all'&&w!==activeFilter)return false;
+    if(s&&!p.name.toLowerCase().includes(s)&&!p.url.toLowerCase().includes(s))return false;
+    return true;
+  });
+  document.getElementById('count').textContent='Showing '+rows.length+' of '+pages.length+' pages';
+  var hdrs=['Page','Assigned to','Workflow','Start date','Last updated','Notes'];
+  if(isNiche)hdrs.push('Blogs de suporte');
+  hdrs.push('');
+  document.getElementById('thead').innerHTML='<tr>'+hdrs.map(function(h){return'<th>'+h+'</th>';}).join('')+'</tr>';
+  document.getElementById('tbody').innerHTML=rows.map(function(p){
+    var st=state[p.id]||{workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
+    var days=daysSince(st.updated);
+    var staleClass=days>=7?' stale':'';
+    var daysNote=st.updated?(days===0?'today':days+'d ago'):'—';
+    var assignSel='<select class="sel" data-id="'+p.id+'" data-f="assigned" onchange="handleChange(this)">'
+      +ASSIGNED.map(function(a){return'<option'+(st.assigned===a?' selected':'')+'>'+a+'</option>';}).join('')+'</select>';
+    var wfSel='<select class="sel" data-id="'+p.id+'" data-f="workflow" onchange="handleChange(this)">'
+      +WORKFLOWS.map(function(w){return'<option'+(st.workflow===w?' selected':'')+'>'+w+'</option>';}).join('')+'</select>';
+    var startInput='<input type="date" class="date-input" value="'+esc(st.start)+'" data-id="'+p.id+'" data-f="start" onchange="handleChange(this)">';
+    var notesInput='<input class="notes-input" type="text" placeholder="Add notes..." value="'+esc(st.notes||'')+'" data-id="'+p.id+'" data-f="notes" onchange="handleChange(this)">';
+    var blogCell='';
+    if(isNiche){
+      var links=[];
+      if(p.blog1)links.push('<a class="blog-link" href="https://123soldcash.com/blog/'+p.blog1+'/" target="_blank">'+p.blog1.split('-').slice(0,4).join('-')+'…</a>');
+      if(p.blog2)links.push('<a class="blog-link" href="https://123soldcash.com/blog/'+p.blog2+'/" target="_blank">'+p.blog2.split('-').slice(0,4).join('-')+'…</a>');
+      blogCell='<td>'+(links.join('<br>')||'—')+'</td>';
+    }
+    var isExtra=!!(EXTRA[activeTab]||[]).find(function(x){return x.id===p.id;});
+    var delBtn=isExtra?'<button class="btn-del" onclick="deletePage(\''+activeTab+'\',\''+p.id+'\')">✕</button>':'';
+    return '<tr class="'+staleClass+'">'
+      +'<td><a class="page-link" href="https://123soldcash.com'+p.url+'" target="_blank">'+esc(p.name)+'</a>'
+      +'<span class="url-small">'+esc(p.url)+'</span></td>'
+      +'<td>'+assignSel+'</td>'
+      +'<td>'+wfSel+'</td>'
+      +'<td>'+startInput+'</td>'
+      +'<td style="font-size:11px;color:#888">'+daysNote+'</td>'
+      +'<td>'+notesInput+'</td>'
+      +(isNiche?blogCell:'')
+      +'<td>'+delBtn+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function handleChange(el){
+  var id=el.getAttribute('data-id'),f=el.getAttribute('data-f'),val=el.value;
+  if(!state[id])state[id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
+  state[id][f]=val;
+  if(f==='workflow')state[id].updated=new Date().toISOString().split('T')[0];
+  saveState();updateSummary();
+  if(f==='workflow')renderActive();
+}
+
+function deletePage(tab,id){
+  if(!confirm('Remove this page?'))return;
+  EXTRA[tab]=(EXTRA[tab]||[]).filter(function(p){return p.id!==id;});
+  delete state[id];
+  saveState();updateTabLabels();renderActive();updateSummary();
+}
+
+// ── MODAL ──
+function openModal(){
+  document.getElementById('m-name').value='';
+  document.getElementById('m-url').value='';
+  document.getElementById('m-blog1').value='';
+  document.getElementById('m-blog2').value='';
+  document.getElementById('m-tab').value=activeTab;
+  document.getElementById('add-modal').classList.add('open');
+  setTimeout(function(){document.getElementById('m-name').focus();},100);
+}
+function closeModal(){document.getElementById('add-modal').classList.remove('open');}
+function addPage(){
+  var name=document.getElementById('m-name').value.trim();
+  var url=document.getElementById('m-url').value.trim();
+  var blog1=document.getElementById('m-blog1').value.trim();
+  var blog2=document.getElementById('m-blog2').value.trim();
+  var tab=document.getElementById('m-tab').value;
+  if(!name||!url){alert('Name and URL are required.');return;}
+  var id='x'+Date.now();
+  if(!EXTRA[tab])EXTRA[tab]=[];
+  EXTRA[tab].push({id:id,name:name,url:url,blog1:blog1,blog2:blog2});
+  state[id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
+  saveState();
+  closeModal();
+  // Switch to the tab where it was added
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.getElementById('tab-'+tab).classList.add('on');
+  activeTab=tab;
+  updateTabLabels();renderActive();updateSummary();
+}
+
+// ── AUTH ──
+function checkPwd(){
+  if(document.getElementById('pwd-input').value===PASS){
+    sessionStorage.setItem('wr_auth','1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('main-app').style.display='block';
+    loadState();updateSummary();updateTabLabels();renderFilters();renderActive();
+  }else{
+    document.getElementById('pwd-error').style.display='block';
+    document.getElementById('pwd-input').value='';
+    document.getElementById('pwd-input').focus();
+  }
+}
+if(sessionStorage.getItem('wr_auth')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('main-app').style.display='block';
+  loadState();updateSummary();updateTabLabels();renderFilters();renderActive();
+}else{setTimeout(function(){document.getElementById('pwd-input').focus();},100);}
+</script>
+</body>
+</html>
