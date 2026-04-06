@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>123SoldCash — SEO Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f5f2;color:#1a1a1a;font-size:13px;padding:1.5rem 1rem}
+.container{max-width:1200px;margin:0 auto}
+h1{font-size:18px;font-weight:700;color:#1B3A6B;margin-bottom:4px}
+.subtitle{font-size:12px;color:#888;margin-bottom:1.25rem}
+
+/* NAV */
+.top-nav{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center}
+.top-nav a{font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px;background:#fff;color:#1B3A6B;border:0.5px solid #1B3A6B;text-decoration:none}
+.top-nav a:hover{background:#1B3A6B;color:#fff}
+
+/* SUMMARY CARDS */
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1.25rem}
+.sc{background:#fff;border-radius:8px;border:0.5px solid #e0e0e0;padding:12px;text-align:center}
+.sc .num{font-size:20px;font-weight:700}
+.sc .lbl{font-size:11px;color:#888;margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;margin-bottom:1rem;border:0.5px solid #ddd;border-radius:8px;overflow:hidden;background:#fff}
+.tab{flex:1;font-size:12px;font-weight:500;padding:10px 6px;border:none;background:transparent;color:#666;cursor:pointer;border-right:0.5px solid #ddd}
+.tab:last-child{border-right:none}
+.tab.on{background:#E6F1FB;color:#0C447C;font-weight:700}
+
+/* TABLE */
+.tbl-wrap{border:0.5px solid #e0e0e0;border-radius:10px;overflow:hidden;background:#fff;overflow-x:auto;margin-bottom:1rem}
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px}
+th{font-size:11px;font-weight:600;color:#666;text-align:left;padding:9px 10px;border-bottom:0.5px solid #e0e0e0;background:#f5f5f2;white-space:nowrap;cursor:pointer}
+th:hover{background:#eee}
+td{padding:8px 10px;border-bottom:0.5px solid #f0f0ee;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf8}
+.url-cell{font-family:'Courier New',monospace;font-size:10px;color:#999}
+
+/* BADGES */
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;white-space:nowrap;display:inline-block}
+.b-alta    {background:#FCEBEB;color:#791F1F}
+.b-media   {background:#FAEEDA;color:#633806}
+.b-baixa   {background:#E6F1FB;color:#0C447C}
+.b-done    {background:#E1F5EE;color:#085041}
+.b-niche   {background:#EEEDFE;color:#3C3489}
+.b-city    {background:#E6F1FB;color:#0C447C}
+.b-home    {background:#fff3cd;color:#856404}
+.b-blog    {background:#f0f4ff;color:#2c3e80}
+.b-yes     {background:#E1F5EE;color:#085041}
+.b-no      {background:#FCEBEB;color:#791F1F}
+.b-warn    {background:#FAEEDA;color:#633806}
+
+/* FILTER BAR */
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap}
+.fb{font-size:11px;padding:4px 10px;border-radius:20px;border:0.5px solid #ccc;background:transparent;color:#666;cursor:pointer}
+.fb.on{background:#1B3A6B;color:#fff;border-color:transparent}
+
+/* SEARCH */
+.search-box{font-size:12px;padding:6px 10px;border:0.5px solid #ccc;border-radius:6px;width:220px;outline:none}
+.search-box:focus{border-color:#1B3A6B}
+
+/* COUNT */
+.count{font-size:11px;color:#888;margin-bottom:8px}
+
+/* PROGRESS BAR */
+.prog-wrap{background:#f0f0ee;border-radius:4px;height:6px;margin-top:4px}
+.prog-bar{height:6px;border-radius:4px;background:#1D9E75;transition:width .4s}
+
+/* LOGIN */
+#login-screen{position:fixed;inset:0;background:#f5f5f2;display:flex;align-items:center;justify-content:center;z-index:9999}
+.login-box{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:2.5rem 2rem;width:320px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.07)}
+.login-box h2{font-size:16px;font-weight:700;color:#1B3A6B;margin-bottom:4px}
+.login-box p{font-size:12px;color:#888;margin-bottom:1.5rem}
+.login-box input{width:100%;padding:10px 12px;font-size:13px;border:0.5px solid #ccc;border-radius:6px;margin-bottom:10px;outline:none}
+.login-box button{width:100%;padding:10px;font-size:13px;font-weight:600;background:#1B3A6B;color:#fff;border:none;border-radius:6px;cursor:pointer}
+.login-error{font-size:11px;color:#E24B4A;margin-top:8px;display:none}
+.branding{text-align:center;margin-top:1.5rem;font-size:11px;color:#bbb}
+
+/* SECTION HEADER */
+.section-info{background:#fff;border:0.5px solid #e0e0e0;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#555;line-height:1.6}
+.section-info strong{color:#1B3A6B}
+
+/* CLUSTER GRID */
+.cluster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:1rem}
+.cluster-card{background:#fff;border:0.5px solid #e0e0e0;border-radius:8px;padding:10px 12px}
+.cluster-card .cn{font-size:11px;font-weight:700;color:#1B3A6B;margin-bottom:4px}
+.cluster-card .cv{font-size:18px;font-weight:700;color:#1a1a1a}
+.cluster-card .cl{font-size:10px;color:#888}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>123SoldCash — SEO Dashboard</h2>
+    <p>Internal access only</p>
+    <input type="password" id="pwd-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPwd()">
+    <button onclick="checkPwd()">Enter</button>
+    <div class="login-error" id="pwd-error">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="container" id="main-app" style="display:none">
+  <h1>123SoldCash.com — SEO Dashboard</h1>
+  <p class="subtitle">Live tracking · April 2026 · Updated by SEO lead after each session</p>
+
+  <div class="top-nav">
+    <a href="index.html">📋 War Room Tracker</a>
+    <a href="hub.html">📁 Files Hub</a>
+    <a href="dashboard.html">📊 SEO Dashboard</a>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary">
+    <div class="sc"><div class="num" style="color:#1D9E75" id="s-done">2</div><div class="lbl">Pages Done</div><div class="prog-wrap"><div class="prog-bar" id="s-prog" style="width:9%"></div></div></div>
+    <div class="sc"><div class="num" style="color:#0C447C">21</div><div class="lbl">Blog Posts</div></div>
+    <div class="sc"><div class="num" style="color:#E24B4A">681</div><div class="lbl">Gap Keywords</div></div>
+    <div class="sc"><div class="num" style="color:#534AB7">66</div><div class="lbl">Top Priority KWs</div></div>
+    <div class="sc"><div class="num" style="color:#BA7517">3</div><div class="lbl">Etapas Active</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab on"  onclick="showTab('pages',this)">📄 Pages Audit (14)</button>
+    <button class="tab"     onclick="showTab('blogs',this)">✍️ Blog Posts (21)</button>
+    <button class="tab"     onclick="showTab('keywords',this)">🎯 Keyword Gaps (681)</button>
+    <button class="tab"     onclick="showTab('tracking',this)">📊 KW Tracking</button>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="filter-bar" id="filter-bar"></div>
+    <input class="search-box" id="search-box" placeholder="Search…" oninput="renderActive()">
+  </div>
+  <div class="count" id="count"></div>
+
+  <!-- TABLE -->
+  <div class="tbl-wrap">
+    <table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+  </div>
+
+  <!-- CLUSTER GRID (keywords tab only) -->
+  <div id="cluster-section" style="display:none">
+    <div style="font-size:12px;font-weight:700;color:#1B3A6B;margin-bottom:8px">Keyword Clusters — Volume Summary</div>
+    <div class="cluster-grid" id="cluster-grid"></div>
+  </div>
+
+  <div class="branding">123SoldCash.com · SEO Strategy Team · Confidential / Internal · April 2026</div>
+</div>
+
+<script>
+var PASS = 'azul123';
+var activeTab = 'pages';
+var activeFilter = 'all';
+
+// ════════════════════════════════════════════════
+// DATA — PAGES AUDIT
+// ════════════════════════════════════════════════
+var pages = [
+  {page:'Homepage',              type:'HOMEPAGE', prio:'🔴 Alta',       gap:333, vol:36390, status:'pending',     url:'https://123soldcash.com/',                                                                       notes:''},
+  {page:'City — Miami',          type:'CITY',     prio:'🔴 Alta',       gap:39,  vol:4000,  status:'pending',     url:'https://123soldcash.com/locations/fl/sell-my-house-in-miami-florida/',                           notes:''},
+  {page:'Niche — Major Repairs', type:'NICHE',    prio:'🔴 Alta',       gap:18,  vol:3000,  status:'pending',     url:'https://123soldcash.com/how-we-can-help/sell-house-major-repairs-florida/',                      notes:''},
+  {page:'Niche — Inherited / Probate',type:'NICHE',prio:'🔴 Alta',      gap:20,  vol:1180,  status:'pending',     url:'https://123soldcash.com/how-we-can-help/sell-your-inherited-or-probate-house/',                  notes:''},
+  {page:'City — Fort Lauderdale',type:'CITY',     prio:'🟠 Média-Alta', gap:10,  vol:570,   status:'pending',     url:'https://123soldcash.com/locations/fl/sell-my-house-in-fort-lauderdale-florida/',                 notes:''},
+  {page:'City — Broward County', type:'CITY',     prio:'🟠 Média-Alta', gap:9,   vol:490,   status:'pending',     url:'https://123soldcash.com/locations/fl/broward-county/',                                           notes:''},
+  {page:'Niche — Fire Damage',   type:'NICHE',    prio:'🟠 Média-Alta', gap:2,   vol:160,   status:'pending',     url:'https://123soldcash.com/how-we-can-help/sell-fire-damaged-house/',                               notes:''},
+  {page:'Niche — Bad Tenant',    type:'NICHE',    prio:'🟠 Média-Alta', gap:0,   vol:0,     status:'pending',     url:'https://123soldcash.com/how-we-can-help/sell-house-with-bad-tenant/',                            notes:''},
+  {page:'Niche — Foreclosure',   type:'NICHE',    prio:'🟡 Média',      gap:2,   vol:90,    status:'pending',     url:'https://123soldcash.com/how-we-can-help/sell-house-in-foreclosure/',                             notes:''},
+  {page:'Niche — Divorce',       type:'NICHE',    prio:'🟡 Média',      gap:1,   vol:50,    status:'pending',     url:'https://123soldcash.com/how-we-can-help/sell-house-during-divorce/',                             notes:''},
+  {page:'City — Palm Beach',     type:'CITY',     prio:'🟡 Média',      gap:2,   vol:80,    status:'pending',     url:'https://123soldcash.com/locations/fl/sell-my-house-in-palm-beach-florida/',                      notes:''},
+  {page:'City — Hollywood FL',   type:'CITY',     prio:'🟡 Média',      gap:3,   vol:150,   status:'pending',     url:'https://123soldcash.com/locations/fl/sell-my-house-in-hollywood-florida/',                       notes:''},
+  {page:'Niche — Water Damage',  type:'NICHE',    prio:'🟡 Auditada',   gap:0,   vol:0,     status:'audited',     url:'https://123soldcash.com/how-we-can-help/sell-water-damaged-house/',                              notes:'Re-indexed Apr 3 2026. Keywords added to SE Ranking.'},
+  {page:'Blog — Water Damage Mold',type:'BLOG',   prio:'🟢 Concluída',  gap:0,   vol:0,     status:'done',        url:'https://123soldcash.com/blog/selling-house-water-damage-mold-florida/',                          notes:'Published Apr 3 2026. 2,300 words. Indexed.'},
+];
+
+var PAGE_STATUS = {pending:'⬜ Pending', 'in-progress':'🔄 In Progress', audited:'🔵 Audited', done:'✅ Done'};
+var PAGE_STATUS_BADGE = {pending:'b-baixa', 'in-progress':'b-warn', audited:'b-media', done:'b-done'};
+var TYPE_BADGE = {HOMEPAGE:'b-home', CITY:'b-city', NICHE:'b-niche', BLOG:'b-blog'};
+
+// ════════════════════════════════════════════════
+// DATA — BLOG POSTS
+// ════════════════════════════════════════════════
+var blogPosts = [
+  {n:1,  name:'Downsize Florida Sell Home Fast Cash',          url:'/blog/downsize-florida-sell-home-fast-cash/',                                 niche:'Downsize',           words:'2,000+',     status:'indexed',   audit:'Apr 4 2026'},
+  {n:2,  name:'Selling House Water Damage Mold Florida',       url:'/blog/selling-house-water-damage-mold-florida/',                              niche:'Water Damage',       words:'2,300',      status:'indexed',   audit:'Apr 3 2026'},
+  {n:3,  name:'All Heirs Agree to Sell Florida',               url:'/blog/do-all-heirs-have-to-agree-to-sell-property-florida/',                  niche:'Inherited / Probate',words:'—',          status:'published', audit:'Mar 27 2026'},
+  {n:4,  name:'How to Stop Foreclosure Florida',               url:'/blog/how-to-stop-foreclosure-in-florida/',                                   niche:'Foreclosure',        words:'—',          status:'pending',   audit:'—'},
+  {n:5,  name:'Selling Inherited House Florida',               url:'/blog/selling-inherited-house-florida/',                                      niche:'Inherited / Probate',words:'—',          status:'pending',   audit:'—'},
+  {n:6,  name:'Selling Condemned House Florida',               url:'/blog/selling-condemned-house-florida/',                                      niche:'Condemned',          words:'—',          status:'pending',   audit:'—'},
+  {n:7,  name:'Selling House Code Violations',                 url:'/blog/selling-house-code-violations-florida/',                                niche:'Code Violation',     words:'—',          status:'pending',   audit:'—'},
+  {n:8,  name:'Selling House in Trust Florida',                url:'/blog/selling-house-in-trust-florida/',                                       niche:'Home Left in Trust', words:'—',          status:'pending',   audit:'—'},
+  {n:9,  name:'Divorce Selling Mistakes Florida',              url:'/blog/selling-house-during-divorce-mistakes/',                                niche:'Divorce',            words:'—',          status:'pending',   audit:'—'},
+  {n:10, name:'Florida Squatters Rights Law',                  url:'/blog/florida-squatters-rights-law/',                                         niche:'Squatters',          words:'—',          status:'pending',   audit:'—'},
+  {n:11, name:'Force Sale Jointly Owned Property',             url:'/blog/force-sale-jointly-owned-property-florida/',                            niche:'Home Left in Trust', words:'—',          status:'pending',   audit:'—'},
+  {n:12, name:'Hurricane Home Options Beyond Insurance',       url:'/blog/hurricane-destroyed-your-florida-home-your-options-beyond-insurance/',  niche:'Hurricane Damage',   words:'—',          status:'published', audit:'Mar 9 2026'},
+  {n:13, name:'Selling House From Jail Florida',               url:'/blog/selling-house-from-jail-florida/',                                      niche:'Owner Incarcerated', words:'—',          status:'pending',   audit:'—'},
+  {n:14, name:'Bad Tenant Destroying Rental',                  url:'/blog/bad-tenant-destroying-rental-florida/',                                 niche:'Bad Tenant',         words:'—',          status:'pending',   audit:'—'},
+  {n:15, name:"Family Won't Leave Inherited House",            url:'/blog/family-wont-leave-inherited-house-florida/',                            niche:'Inherited / Probate',words:'—',          status:'pending',   audit:'—'},
+  {n:16, name:'Sell House Before Bankruptcy',                  url:'/blog/sell-house-before-bankruptcy-florida/',                                 niche:'Financial Hardship', words:'—',          status:'pending',   audit:'—'},
+  {n:17, name:'Sell House Gambling Debt Florida',              url:'/blog/sell-house-gambling-debt-florida-cash/',                                niche:'Financial Hardship', words:'—',          status:'pending',   audit:'—'},
+  {n:18, name:'Sell House Too Many Repairs',                   url:'/blog/sell-house-too-many-repairs-florida-cash/',                             niche:'Major Repairs',      words:'—',          status:'pending',   audit:'—'},
+  {n:19, name:'Sell House Old Roof Florida Cash',              url:'/blog/sell-house-old-roof-florida-cash/',                                     niche:'Old Roof',           words:'—',          status:'pending',   audit:'—'},
+  {n:20, name:'Tax Lien Stop Foreclosure Florida',             url:'/blog/tax-lien-stop-foreclosure-florida/',                                    niche:'Foreclosure / Taxes',words:'—',          status:'pending',   audit:'—'},
+  {n:21, name:'Sell Elderly Parent House Assisted Living',     url:'/blog/sell-elderly-parent-house-assisted-living-florida/',                    niche:'Downsize',           words:'—',          status:'pending',   audit:'—'},
+];
+var BLOG_STATUS = {pending:'⬜ Pending', writing:'✏️ Writing', published:'📢 Published', indexed:'✅ Indexed'};
+var BLOG_BADGE  = {pending:'b-baixa', writing:'b-warn', published:'b-media', indexed:'b-done'};
+
+// ════════════════════════════════════════════════
+// DATA — KEYWORD GAPS (TOP PRIORITY)
+// ════════════════════════════════════════════════
+var keywords = [
+  {cluster:'Cash Buyer Genérico',    kw:'companies that buy houses',             vol:5400, kd:20, cpc:0.09, intent:'Commercial',              score:2.70, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'cash buyers',                           vol:4400, kd:17, cpc:0.07, intent:'Commercial',              score:2.59, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'cash offer for home',                   vol:2900, kd:16, cpc:0.04, intent:'Commercial/Info',         score:1.81, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Genérico',               kw:'buy my house for cash',                 vol:2400, kd:10, cpc:0.08, intent:'Commercial',              score:2.40, prio:'🔥 Alta',       comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'cash homebuyers',                       vol:880,  kd:12, cpc:0.02, intent:'Commercial',              score:0.73, prio:'🔥 Alta',       comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'house buyers cash',                     vol:720,  kd:12, cpc:0.02, intent:'Commercial',              score:0.60, prio:'🔥 Alta',       comp:'floridacashhomebuyers.com'},
+  {cluster:'Genérico',               kw:'sell to bobby',                         vol:720,  kd:15, cpc:0.42, intent:'Informational',           score:0.48, prio:'🔥 Alta',       comp:'selltobobby'},
+  {cluster:'As-Is',                  kw:'home buyers as is',                     vol:720,  kd:14, cpc:0.01, intent:'Commercial/Info',         score:0.51, prio:'🔥 Alta',       comp:'floridacashhomebuyers.com'},
+  {cluster:'As-Is',                  kw:'sell home as is fast',                  vol:720,  kd:16, cpc:0.01, intent:'Commercial/Info',         score:0.45, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'cash house buyers near me',             vol:590,  kd:13, cpc:0.00, intent:'Transactional',          score:0.45, prio:'🔥 Alta',       comp:'floridacashhomebuyers.com'},
+  {cluster:'City / Geo',             kw:'sell my house miami',                   vol:590,  kd:6,  cpc:2.52, intent:'Commercial',              score:0.98, prio:'🔥 Alta',       comp:'selltobobby'},
+  {cluster:'Terreno / Land',         kw:'sell land fast florida',                vol:590,  kd:9,  cpc:0.31, intent:'Commercial',              score:0.30, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Genérico',               kw:'who buys houses for cash near me',      vol:480,  kd:12, cpc:0.02, intent:'Transactional',          score:0.40, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'cash buyers for homes near me',         vol:480,  kd:18, cpc:0.00, intent:'Transactional',          score:0.27, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'City / Geo',             kw:'sell my house jacksonville',            vol:210,  kd:12, cpc:0.00, intent:'Commercial',              score:0.18, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Sell Fast Genérico',     kw:'sell my house fast tampa fl',           vol:320,  kd:1,  cpc:0.24, intent:'Commercial',              score:3.20, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Sell Fast Genérico',     kw:'sell home fast cash',                   vol:320,  kd:11, cpc:0.00, intent:'Commercial/Info',         score:0.29, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Educacional',            kw:'how to sell your home fast',            vol:1000, kd:18, cpc:0.01, intent:'Informational',           score:0.56, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Genérico',               kw:'sell house cash',                       vol:1300, kd:12, cpc:0.01, intent:'Commercial',              score:1.08, prio:'🔥 Alta',       comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'we buy houses tampa fl',                vol:260,  kd:1,  cpc:0.19, intent:'Commercial',              score:2.60, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'cash home buyers tampa',                vol:210,  kd:1,  cpc:0.16, intent:'Commercial',              score:2.10, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'we buy houses in tampa',                vol:210,  kd:1,  cpc:0.16, intent:'Commercial',              score:2.10, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'we buy any house',                      vol:1000, kd:20, cpc:0.01, intent:'Informational',           score:0.50, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Cash Buyer Genérico',    kw:'cash home buyers miami',                vol:390,  kd:8,  cpc:1.05, intent:'Commercial',              score:0.49, prio:'🟠 Média-Alta', comp:'selltobobby'},
+  {cluster:'Cash Buyer Genérico',    kw:'cash home buyers in miami',             vol:210,  kd:9,  cpc:0.21, intent:'Commercial',              score:0.47, prio:'🟠 Média-Alta', comp:'selltobobby'},
+  {cluster:'Water Damage',           kw:'sell water damaged house florida',      vol:1900, kd:18, cpc:0.95, intent:'Transactional',          score:0.92, prio:'🔥 Alta',       comp:'—'},
+  {cluster:'Water Damage',           kw:'sell water damaged house fast florida', vol:590,  kd:15, cpc:0.80, intent:'Transactional',          score:0.85, prio:'🔥 Alta',       comp:'—'},
+  {cluster:'Water Damage',           kw:'sell house with water damage florida',  vol:480,  kd:16, cpc:0.75, intent:'Transactional',          score:0.82, prio:'🔥 Alta',       comp:'—'},
+  {cluster:'Water Damage',           kw:'water damaged house cash buyer florida',vol:320,  kd:12, cpc:0.65, intent:'Transactional',          score:0.78, prio:'🔥 Alta',       comp:'—'},
+  {cluster:'Water Damage',           kw:'sell house hurricane damage florida',   vol:260,  kd:17, cpc:0.70, intent:'Transactional',          score:0.75, prio:'🔥 Alta',       comp:'—'},
+  {cluster:'Water Damage',           kw:'sell house with mold florida',          vol:210,  kd:14, cpc:0.55, intent:'Transactional',          score:0.72, prio:'🟠 Média-Alta', comp:'—'},
+  {cluster:'Water Damage',           kw:'sell flooded house florida',            vol:170,  kd:11, cpc:0.50, intent:'Transactional',          score:0.68, prio:'🟠 Média-Alta', comp:'—'},
+  {cluster:'Water Damage',           kw:'florida water damage home buyer',       vol:140,  kd:10, cpc:0.45, intent:'Commercial',             score:0.65, prio:'🟡 Média',      comp:'—'},
+  {cluster:'Water Damage',           kw:'sell house with flood damage florida',  vol:110,  kd:9,  cpc:0.40, intent:'Transactional',          score:0.60, prio:'🟡 Média',      comp:'—'},
+  {cluster:'Water Damage',           kw:'sell mold damaged house florida',       vol:90,   kd:8,  cpc:0.35, intent:'Transactional',          score:0.55, prio:'🟡 Média',      comp:'—'},
+  {cluster:'Reviews / Reputação',    kw:'sell my house fast reviews',            vol:320,  kd:15, cpc:0.00, intent:'Commercial/Info',         score:0.21, prio:'🟠 Média-Alta', comp:'floridacashhomebuyers.com'},
+  {cluster:'Reviews / Reputação',    kw:'sell to bobby reviews',                 vol:260,  kd:20, cpc:0.00, intent:'Commercial/Info',         score:0.13, prio:'🟠 Média-Alta', comp:'selltobobby'},
+  {cluster:'Herdado / Probate',      kw:'sell inherited house fast',             vol:480,  kd:6,  cpc:0.95, intent:'Commercial',              score:0.46, prio:'🔥 Alta',       comp:'—'},
+  {cluster:'Foreclosure',            kw:'stop foreclosure florida',              vol:720,  kd:12, cpc:0.89, intent:'Transactional',          score:0.60, prio:'🔥 Alta',       comp:'—'},
+];
+
+var clusters = [
+  {name:'Cash Buyer Genérico', n:222, vol:28820, kd:7.6},
+  {name:'Genérico',            n:130, vol:22566, kd:19.8},
+  {name:'Sell Fast Genérico',  n:138, vol:9710,  kd:7.8},
+  {name:'City / Geo',          n:53,  vol:3770,  kd:7.0},
+  {name:'Terreno / Land',      n:48,  vol:3340,  kd:8.7},
+  {name:'As-Is',               n:16,  vol:2920,  kd:13.5},
+  {name:'Water Damage',        n:12,  vol:2860,  kd:12.0},
+  {name:'Reviews / Reputação', n:19,  vol:1520,  kd:14.3},
+  {name:'Educacional',         n:8,   vol:1360,  kd:14.0},
+  {name:'Herdado / Probate',   n:17,  vol:950,   kd:7.9},
+  {name:'Foreclosure',         n:2,   vol:90,    kd:8.0},
+  {name:'Fire Damage',         n:3,   vol:210,   kd:11.7},
+  {name:'Sem Corretor',        n:5,   vol:370,   kd:11.0},
+  {name:'Condo',               n:6,   vol:290,   kd:10.7},
+  {name:'Divórcio',            n:1,   vol:50,    kd:18.0},
+];
+
+// ════════════════════════════════════════════════
+// DATA — KEYWORD TRACKING
+// ════════════════════════════════════════════════
+var tracking = [
+  {etapa:'Etapa 01 — Downsize',    n:1,  kw:'sell house to downsize florida',          url:'/how-we-can-help/sell-house-to-downsize/',                type:'Niche Page', indexed:'✅ Yes',              seranking:'Add to SE Ranking',        target:'Top 10'},
+  {etapa:'Etapa 01 — Downsize',    n:2,  kw:'downsize florida sell home fast cash',    url:'/blog/downsize-florida-sell-home-fast-cash/',             type:'Blog Post',  indexed:'✅ Yes',              seranking:'Add to SE Ranking',        target:'Top 10'},
+  {etapa:'Etapa 02 — Water Damage',n:3,  kw:'sell water damaged house florida',        url:'/how-we-can-help/sell-water-damaged-house/',              type:'Niche Page', indexed:'✅ Re-indexed Apr 3', seranking:'⚠️ Add to SE Ranking',    target:'Top 10'},
+  {etapa:'Etapa 02 — Water Damage',n:4,  kw:'sell water damaged house florida fast',   url:'/blog/selling-house-water-damage-mold-florida/',          type:'Blog Post',  indexed:'✅ Re-indexed Apr 3', seranking:'⚠️ Add to SE Ranking',    target:'Top 10'},
+  {etapa:'Etapa 02 — Water Damage',n:'', kw:'sell water damaged house fast florida',   url:'/how-we-can-help/sell-water-damaged-house/',              type:'Niche Page', indexed:'✅ Yes',              seranking:'⚠️ Add to SE Ranking',    target:'Top 10'},
+  {etapa:'Etapa 02 — Water Damage',n:'', kw:'sell house with water damage florida',    url:'/how-we-can-help/sell-water-damaged-house/',              type:'Niche Page', indexed:'✅ Yes',              seranking:'⚠️ Add to SE Ranking',    target:'Top 10'},
+  {etapa:'Etapa 02 — Water Damage',n:'', kw:'water damaged house cash buyer florida',  url:'/how-we-can-help/sell-water-damaged-house/',              type:'Niche Page', indexed:'✅ Yes',              seranking:'⚠️ Add to SE Ranking',    target:'Top 10'},
+  {etapa:'Etapa 02 — Water Damage',n:'', kw:'sell house with mold florida',            url:'/blog/selling-house-water-damage-mold-florida/',          type:'Blog Post',  indexed:'✅ Yes',              seranking:'⚠️ Add to SE Ranking',    target:'Top 10'},
+  {etapa:'Etapa 02 — Water Damage',n:'', kw:'sell flooded house florida',              url:'/how-we-can-help/sell-water-damaged-house/',              type:'Niche Page', indexed:'✅ Yes',              seranking:'⚠️ Add to SE Ranking',    target:'Top 10'},
+  {etapa:'Etapa 02 — Water Damage',n:'', kw:'sell house hurricane damage florida',     url:'/how-we-can-help/sell-water-damaged-house/',              type:'Niche Page', indexed:'✅ Yes',              seranking:'⚠️ Add to SE Ranking',    target:'Top 15'},
+  {etapa:'Etapa 03 — Fire Damage', n:5,  kw:'sell fire damaged house florida',         url:'/how-we-can-help/sell-fire-damaged-house/',               type:'Niche Page', indexed:'✅ Yes — March 2026', seranking:'Add to SE Ranking',        target:'Top 10'},
+  {etapa:'Etapa 03 — Fire Damage', n:6,  kw:'selling fire damaged house florida',      url:'/blog/selling-fire-damaged-house-florida/',               type:'Blog Post',  indexed:'✅ Yes — March 2026', seranking:'Add to SE Ranking',        target:'Top 10'},
+];
+
+// ════════════════════════════════════════════════
+// RENDER ENGINE
+// ════════════════════════════════════════════════
+function q(s){ return document.getElementById(s); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+function getSearch(){ return (q('search-box').value||'').toLowerCase(); }
+
+function renderFilters(btns){
+  var bar = q('filter-bar');
+  bar.innerHTML = btns.map(function(b,i){
+    return '<button class="fb'+(i===0?' on':'')+'" onclick="setFilter(\''+b.val+'\',this)">'+b.label+'</button>';
+  }).join('');
+  activeFilter = 'all';
+}
+
+function setFilter(f,btn){
+  activeFilter = f;
+  document.querySelectorAll('.fb').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  renderActive();
+}
+
+function showTab(tab, btn){
+  activeTab = tab;
+  activeFilter = 'all';
+  q('search-box').value = '';
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  btn.classList.add('on');
+  renderActive();
+}
+
+function renderActive(){
+  var s = getSearch();
+  q('cluster-section').style.display = 'none';
+
+  if(activeTab==='pages')    renderPages(s);
+  if(activeTab==='blogs')    renderBlogs(s);
+  if(activeTab==='keywords') renderKeywords(s);
+  if(activeTab==='tracking') renderTracking(s);
+}
+
+function renderPages(s){
+  renderFilters([
+    {val:'all',         label:'All ('+pages.length+')'},
+    {val:'pending',     label:'Pending'},
+    {val:'in-progress', label:'In Progress'},
+    {val:'audited',     label:'Audited'},
+    {val:'done',        label:'Done'},
+  ]);
+  q('thead').innerHTML = '<tr><th>#</th><th>Page</th><th>Type</th><th>Priority</th><th>Gap KWs</th><th>Gap Vol</th><th>Status</th><th>Notes</th></tr>';
+  var rows = pages.filter(function(p,i){
+    if(activeFilter!=='all' && p.status!==activeFilter) return false;
+    if(s && !p.page.toLowerCase().includes(s)) return false;
+    p._i = i+1;
+    return true;
+  });
+  q('count').textContent = 'Showing '+rows.length+' of '+pages.length+' pages';
+  q('tbody').innerHTML = rows.map(function(p){
+    return '<tr>'
+      +'<td style="color:#aaa;font-size:11px">'+p._i+'</td>'
+      +'<td><a href="'+p.url+'" target="_blank" style="font-weight:600;color:#1B3A6B;text-decoration:none">'+esc(p.page)+'</a></td>'
+      +'<td><span class="badge '+TYPE_BADGE[p.type]+'">'+p.type+'</span></td>'
+      +'<td>'+p.prio+'</td>'
+      +'<td style="text-align:right;font-weight:600">'+(p.gap||'—')+'</td>'
+      +'<td style="text-align:right">'+(p.vol?p.vol.toLocaleString():'—')+'</td>'
+      +'<td><span class="badge '+PAGE_STATUS_BADGE[p.status]+'">'+PAGE_STATUS[p.status]+'</span></td>'
+      +'<td style="font-size:11px;color:#888">'+esc(p.notes||'—')+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function renderBlogs(s){
+  renderFilters([
+    {val:'all',      label:'All ('+blogPosts.length+')'},
+    {val:'pending',  label:'Pending'},
+    {val:'writing',  label:'Writing'},
+    {val:'published',label:'Published'},
+    {val:'indexed',  label:'Indexed'},
+  ]);
+  q('thead').innerHTML = '<tr><th>#</th><th>Blog Post</th><th>Niche</th><th>Words</th><th>Status</th><th>Last Audit</th></tr>';
+  var rows = blogPosts.filter(function(b){
+    if(activeFilter!=='all' && b.status!==activeFilter) return false;
+    if(s && !b.name.toLowerCase().includes(s) && !b.niche.toLowerCase().includes(s)) return false;
+    return true;
+  });
+  q('count').textContent = 'Showing '+rows.length+' of '+blogPosts.length+' blog posts';
+  q('tbody').innerHTML = rows.map(function(b){
+    return '<tr>'
+      +'<td style="color:#aaa;font-size:11px">'+b.n+'</td>'
+      +'<td><a href="https://123soldcash.com'+b.url+'" target="_blank" style="font-weight:600;color:#1B3A6B;text-decoration:none">'+esc(b.name)+'</a>'
+      +'<div class="url-cell">'+b.url+'</div></td>'
+      +'<td style="font-size:11px;color:#555">'+esc(b.niche)+'</td>'
+      +'<td style="font-size:11px">'+b.words+'</td>'
+      +'<td><span class="badge '+BLOG_BADGE[b.status]+'">'+BLOG_STATUS[b.status]+'</span></td>'
+      +'<td style="font-size:11px;color:#888">'+b.audit+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+var KW_CLUSTERS = ['all','Cash Buyer Genérico','Genérico','Sell Fast Genérico','Water Damage','City / Geo','As-Is','Herdado / Probate','Foreclosure','Reviews / Reputação','Educacional','Terreno / Land'];
+
+function renderKeywords(s){
+  renderFilters(KW_CLUSTERS.map(function(c){ return {val:c, label:c==='all'?'All Clusters':c}; }));
+  q('thead').innerHTML = '<tr><th>Cluster</th><th>Keyword</th><th>Volume</th><th>KD</th><th>CPC</th><th>Intent</th><th>Score</th><th>Priority</th><th>Competitor</th></tr>';
+  var rows = keywords.filter(function(k){
+    if(activeFilter!=='all' && k.cluster!==activeFilter) return false;
+    if(s && !k.kw.toLowerCase().includes(s) && !k.cluster.toLowerCase().includes(s)) return false;
+    return true;
+  });
+  q('count').textContent = 'Showing '+rows.length+' keywords (top priority subset of 681 total)';
+  q('tbody').innerHTML = rows.map(function(k){
+    var prioClass = k.prio.includes('🔥') ? 'b-alta' : k.prio.includes('🟠') ? 'b-warn' : 'b-baixa';
+    return '<tr>'
+      +'<td style="font-size:11px;color:#555">'+esc(k.cluster)+'</td>'
+      +'<td style="font-weight:600">'+esc(k.kw)+'</td>'
+      +'<td style="text-align:right">'+k.vol.toLocaleString()+'</td>'
+      +'<td style="text-align:right">'+k.kd+'</td>'
+      +'<td style="text-align:right">$'+k.cpc.toFixed(2)+'</td>'
+      +'<td style="font-size:11px;color:#666">'+k.intent+'</td>'
+      +'<td style="text-align:right;font-weight:600">'+k.score.toFixed(2)+'</td>'
+      +'<td><span class="badge '+prioClass+'">'+k.prio+'</span></td>'
+      +'<td style="font-size:11px;color:#888">'+k.comp+'</td>'
+      +'</tr>';
+  }).join('');
+  q('cluster-section').style.display = 'block';
+  q('cluster-grid').innerHTML = clusters.map(function(c){
+    return '<div class="cluster-card">'
+      +'<div class="cn">'+c.name+'</div>'
+      +'<div class="cv">'+c.vol.toLocaleString()+'</div>'
+      +'<div class="cl">'+c.n+' keywords · KD avg '+c.kd+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+var ETAPAS = ['all','Etapa 01 — Downsize','Etapa 02 — Water Damage','Etapa 03 — Fire Damage'];
+
+function renderTracking(s){
+  renderFilters(ETAPAS.map(function(e){ return {val:e, label:e==='all'?'All Etapas':e}; }));
+  q('thead').innerHTML = '<tr><th>#</th><th>Etapa</th><th>Keyword to Monitor</th><th>Page URL</th><th>Type</th><th>Indexed</th><th>SE Ranking</th><th>Target</th></tr>';
+  var rows = tracking.filter(function(t){
+    if(activeFilter!=='all' && t.etapa!==activeFilter) return false;
+    if(s && !t.kw.toLowerCase().includes(s)) return false;
+    return true;
+  });
+  q('count').textContent = 'Showing '+rows.length+' keywords to monitor · Target: Top 10 within 60–90 days of indexing';
+  q('tbody').innerHTML = rows.map(function(t){
+    var idxBadge = t.indexed.includes('✅') ? 'b-done' : t.indexed.includes('⚠️') ? 'b-warn' : 'b-baixa';
+    var rankBadge = t.seranking.includes('⚠️') ? 'b-warn' : 'b-baixa';
+    return '<tr>'
+      +'<td style="color:#aaa;font-size:11px">'+t.n+'</td>'
+      +'<td style="font-size:11px;color:#555;white-space:nowrap">'+esc(t.etapa)+'</td>'
+      +'<td style="font-weight:600">'+esc(t.kw)+'</td>'
+      +'<td class="url-cell">'+esc(t.url)+'</td>'
+      +'<td><span class="badge '+(t.type==='Blog Post'?'b-blog':'b-niche')+'">'+t.type+'</span></td>'
+      +'<td><span class="badge '+idxBadge+'" style="font-size:10px">'+esc(t.indexed)+'</span></td>'
+      +'<td><span class="badge '+rankBadge+'" style="font-size:10px">'+esc(t.seranking)+'</span></td>'
+      +'<td style="font-size:11px;font-weight:600;color:#1B3A6B">'+t.target+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function checkPwd(){
+  if(q('pwd-input').value === PASS){
+    sessionStorage.setItem('wr_auth','1');
+    q('login-screen').style.display = 'none';
+    q('main-app').style.display = 'block';
+    renderPages('');
+  } else {
+    q('pwd-error').style.display = 'block';
+    q('pwd-input').value = '';
+    q('pwd-input').focus();
+  }
+}
+
+if(sessionStorage.getItem('wr_auth')==='1'){
+  q('login-screen').style.display = 'none';
+  q('main-app').style.display = 'block';
+  renderPages('');
+} else {
+  setTimeout(function(){ q('pwd-input').focus(); }, 100);
+}
+</script>
+</body>
+</html>
