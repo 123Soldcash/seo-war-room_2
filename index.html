@@ -38,8 +38,10 @@ th{font-size:10px;font-weight:600;color:#888;text-align:left;padding:8px 10px;bo
 td{padding:6px 10px;border-bottom:0.5px solid #f0f0ee;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 tr:hover td{background:#fafaf8}
-tr.stale td{background:#fffde7}
-tr.stale:hover td{background:#fff9c4}
+tr.stale15 td{background:#fffde7}
+tr.stale15:hover td{background:#fff9c4}
+tr.stale30 td{background:#ffe0f0}
+tr.stale30:hover td{background:#ffcce6}
 .page-link{font-weight:600;color:#1B3A6B;text-decoration:none;font-size:12px}
 .page-link:hover{text-decoration:underline}
 .url-small{font-family:'Courier New',monospace;font-size:10px;color:#bbb;display:block;margin-top:1px}
@@ -47,9 +49,24 @@ tr.stale:hover td{background:#fff9c4}
 .sel:focus{border-color:#1B3A6B}
 .date-input{font-size:11px;padding:2px 5px;border:0.5px solid #ddd;border-radius:4px;background:#fff;outline:none;color:#555;width:105px}
 .date-input:focus{border-color:#1B3A6B}
-.notes-input{font-size:11px;padding:2px 6px;border:0.5px solid transparent;border-radius:4px;background:transparent;width:180px;outline:none;color:#555;font-family:Arial,sans-serif}
-.notes-input:hover{border-color:#ddd;background:#fafafa}
-.notes-input:focus{border-color:#1B3A6B;background:#fff}
+.notes-wrap{display:flex;flex-direction:column;gap:3px;min-width:280px}
+.notes-history{font-size:10px;color:#555;line-height:1.5;white-space:pre-wrap;max-height:70px;overflow-y:auto;padding:3px 5px;background:#f8f8f6;border-radius:3px;border:0.5px solid #e8e8e8}
+.notes-add-row{display:flex;gap:4px;align-items:center}
+.notes-input{font-size:11px;padding:2px 6px;border:0.5px solid #ddd;border-radius:4px;background:#fff;width:210px;outline:none;color:#555;font-family:Arial,sans-serif}
+.notes-input:focus{border-color:#1B3A6B}
+.btn-note{font-size:10px;padding:2px 8px;border-radius:4px;background:#1B3A6B;color:#fff;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-note:hover{background:#0C447C}
+.blog-wrap{display:flex;flex-direction:column;gap:3px;min-width:220px}
+.blog-item{display:flex;align-items:center;gap:4px}
+.blog-item a{font-size:11px;color:#1D9E75;text-decoration:none;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.blog-item a:hover{text-decoration:underline}
+.btn-blog-del{font-size:9px;padding:1px 5px;border-radius:3px;background:#FCEBEB;color:#791F1F;border:none;cursor:pointer;opacity:.5;flex-shrink:0}
+.btn-blog-del:hover{opacity:1}
+.blog-add-row{display:flex;gap:4px;margin-top:2px}
+.blog-input{font-size:11px;padding:2px 5px;border:0.5px solid #ddd;border-radius:4px;width:160px;outline:none;color:#555}
+.blog-input:focus{border-color:#1D9E75}
+.btn-blog-add{font-size:10px;padding:2px 7px;border-radius:4px;background:#1D9E75;color:#fff;border:none;cursor:pointer}
+.btn-blog-add:hover{background:#158a63}
 .blog-link{font-size:11px;color:#1D9E75;text-decoration:none;font-weight:600}
 .blog-link:hover{text-decoration:underline}
 .btn-del{font-size:10px;padding:2px 6px;border-radius:4px;background:#FCEBEB;color:#791F1F;border:none;cursor:pointer;opacity:.6}
@@ -122,7 +139,7 @@ tr.stale:hover td{background:#fff9c4}
 <div class="container" id="main-app" style="display:none">
   <h1>123SoldCash.com — SEO War Room</h1>
   <div class="subtitle">Team workflow tracker &nbsp;·&nbsp; April 2026 &nbsp;·&nbsp; <span id="total-count">57</span> pages</div>
-  <div class="stale-note">⚠️ Yellow rows = no update in 7+ days</div>
+  <div class="stale-note">🟡 Yellow = no update in 15+ days &nbsp;·&nbsp; 🩷 Pink = no update in 30+ days</div>
 
   <div class="summary">
     <div class="sc"><div class="num" id="cnt-pending"  style="color:#888">0</div><div class="lbl">Pending</div></div>
@@ -409,20 +426,24 @@ function renderActive(){
   document.getElementById('tbody').innerHTML=rows.map(function(p){
     var st=state[p.id]||{workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
     var days=daysSince(st.updated);
-    var staleClass=days>=7?' stale':'';
+    var staleClass=days>=30?' stale30':days>=15?' stale15':'';
     var daysNote=st.updated?(days===0?'today':days+'d ago'):'—';
     var assignSel='<select class="sel" data-id="'+p.id+'" data-f="assigned" onchange="handleChange(this)">'
       +ASSIGNED.map(function(a){return'<option'+(st.assigned===a?' selected':'')+'>'+esc(a)+'</option>';}).join('')+'</select>';
     var wfSel='<select class="sel" data-id="'+p.id+'" data-f="workflow" onchange="handleChange(this)">'
       +WORKFLOWS.map(function(w){return'<option'+(st.workflow===w?' selected':'')+'>'+w+'</option>';}).join('')+'</select>';
     var startInput='<input type="date" class="date-input" value="'+esc(st.start)+'" data-id="'+p.id+'" data-f="start" onchange="handleChange(this)">';
-    var notesInput='<input class="notes-input" type="text" placeholder="Add notes..." value="'+esc(st.notes||'')+'" data-id="'+p.id+'" data-f="notes" onchange="handleChange(this)">';
+    var noteHistory=st.notes?'<div class="notes-history">'+esc(st.notes)+'</div>':'';
+    var notesInput='<div class="notes-wrap">'+noteHistory+'<div class="notes-add-row"><input class="notes-input" type="text" placeholder="Add note..." id="ni-'+p.id+'" onkeydown="if(event.key===\'Enter\')addNote(\''+p.id+'\')"><button class="btn-note" onclick="addNote(\''+p.id+'\')">+ Add</button></div></div>';
     var blogCell='';
     if(isNiche){
-      var links=[];
-      if(p.blog1)links.push('<a class="blog-link" href="https://123soldcash.com/blog/'+p.blog1+'/" target="_blank">'+p.blog1.split('-').slice(0,4).join('-')+'…</a>');
-      if(p.blog2)links.push('<a class="blog-link" href="https://123soldcash.com/blog/'+p.blog2+'/" target="_blank">'+p.blog2.split('-').slice(0,4).join('-')+'…</a>');
-      blogCell='<td>'+(links.join('<br>')||'—')+'</td>';
+      var blogs=getBlogs(p);
+      var blogItems=blogs.map(function(b,i){
+        return '<div class="blog-item"><a href="https://123soldcash.com/blog/'+b+'/" target="_blank" title="'+b+'">'+b.split('-').slice(0,4).join('-')+'…</a>'
+          +'<button class="btn-blog-del" onclick="removeBlog(\''+p.id+'\','+i+')">✕</button></div>';
+      }).join('');
+      blogCell='<td><div class="blog-wrap">'+blogItems
+        +'<div class="blog-add-row"><input class="blog-input" id="bi-'+p.id+'" placeholder="blog-slug..." onkeydown="if(event.key===\'Enter\')addBlog(\''+p.id+'\')"><button class="btn-blog-add" onclick="addBlog(\''+p.id+'\')"">+</button></div></div></td>';
     }
     var isExtra=!!(EXTRA[activeTab]||[]).find(function(x){return x.id===p.id;});
     var delBtn=isExtra?'<button class="btn-del" onclick="deletePage(\''+activeTab+'\',\''+p.id+'\')">✕</button>':'';
@@ -440,6 +461,62 @@ function renderActive(){
   }).join('');
 }
 
+function getBlogs(p){
+  var hidden=(state[p.id]||{}).hiddenBlogs||[];
+  var extra=(state[p.id]||{}).extraBlogs||[];
+  var base=[];
+  if(p.blog1)base.push(p.blog1);
+  if(p.blog2)base.push(p.blog2);
+  var all=base.concat(extra).filter(function(b,i,a){
+    return b&&a.indexOf(b)===i&&hidden.indexOf(b)===-1;
+  });
+  return all;
+}
+function addBlog(id){
+  var inp=document.getElementById('bi-'+id);
+  if(!inp||!inp.value.trim())return;
+  var slug=inp.value.trim().replace(/^\/blog\/|\/$/g,'').replace(/^https?:\/\/123soldcash\.com\/blog\//,'');
+  if(!state[id])state[id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:'',extraBlogs:[]};
+  if(!state[id].extraBlogs)state[id].extraBlogs=[];
+  if(state[id].extraBlogs.indexOf(slug)===-1)state[id].extraBlogs.push(slug);
+  inp.value='';
+  saveToLocal();renderActive();
+}
+function removeBlog(id,idx){
+  if(!confirm('Remove this blog link?'))return;
+  var p=getAllPageById(id);
+  var base=[];
+  if(p&&p.blog1)base.push(p.blog1);
+  if(p&&p.blog2)base.push(p.blog2);
+  var all=base.concat((state[id]||{}).extraBlogs||[]).filter(function(b,i,a){return b&&a.indexOf(b)===i;});
+  var toRemove=all[idx];
+  // if it's a base blog, mark as hidden
+  if(!state[id])state[id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:'',extraBlogs:[],hiddenBlogs:[]};
+  if(!state[id].hiddenBlogs)state[id].hiddenBlogs=[];
+  if(base.indexOf(toRemove)>-1){
+    state[id].hiddenBlogs.push(toRemove);
+  } else {
+    state[id].extraBlogs=(state[id].extraBlogs||[]).filter(function(b){return b!==toRemove;});
+  }
+  saveToLocal();renderActive();
+}
+function getAllPageById(id){
+  var found=null;
+  allPages().forEach(function(p){if(p.id===id)found=p;});
+  return found;
+}
+function addNote(id){
+  var inp=document.getElementById('ni-'+id);
+  if(!inp||!inp.value.trim())return;
+  var now=new Date();
+  var ts='['+now.toLocaleDateString('en-US')+' '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})+']';
+  var newNote=ts+' '+inp.value.trim();
+  if(!state[id])state[id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
+  state[id].notes=state[id].notes?(state[id].notes+'\n'+newNote):newNote;
+  state[id].updated=new Date().toISOString().split('T')[0];
+  inp.value='';
+  saveToLocal();updateSummary();renderActive();
+}
 function handleChange(el){
   var id=el.getAttribute('data-id'),f=el.getAttribute('data-f'),val=el.value;
   if(!state[id])state[id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
