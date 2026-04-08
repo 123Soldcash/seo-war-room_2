@@ -54,6 +54,10 @@ tr.stale:hover td{background:#fff9c4}
 .blog-link:hover{text-decoration:underline}
 .btn-del{font-size:10px;padding:2px 6px;border-radius:4px;background:#FCEBEB;color:#791F1F;border:none;cursor:pointer;opacity:.6}
 .btn-del:hover{opacity:1}
+.sync-status{font-size:11px;padding:3px 8px;border-radius:4px;margin-left:4px}
+.sync-ok{color:#1D9E75}
+.sync-err{color:#E24B4A}
+.sync-loading{color:#BA7517}
 
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9997;align-items:center;justify-content:center}
@@ -76,7 +80,6 @@ tr.stale:hover td{background:#fff9c4}
 .login-box button{width:100%;padding:10px;font-size:13px;font-weight:600;background:#1B3A6B;color:#fff;border:none;border-radius:6px;cursor:pointer}
 .login-error{font-size:11px;color:#E24B4A;margin-top:8px;display:none}
 .branding{text-align:center;margin-top:1rem;font-size:11px;color:#bbb}
-.saved-msg{font-size:11px;color:#1D9E75;margin-left:4px}
 </style>
 </head>
 <body>
@@ -91,7 +94,6 @@ tr.stale:hover td{background:#fff9c4}
   </div>
 </div>
 
-<!-- ADD PAGE MODAL -->
 <div class="modal-overlay" id="add-modal">
   <div class="modal-box">
     <h3>➕ Add New Page</h3>
@@ -144,7 +146,7 @@ tr.stale:hover td{background:#fff9c4}
       <button class="btn-add" onclick="openModal()">➕ Add Page</button>
       <button class="btn-reset" onclick="resetAll()">Reset all</button>
       <button class="btn-save" onclick="saveAll()">💾 Save</button>
-      <span class="saved-msg" id="saved-msg" style="display:none">✓ Saved</span>
+      <span class="sync-status" id="sync-msg"></span>
     </div>
   </div>
   <div class="count" id="count"></div>
@@ -156,32 +158,38 @@ tr.stale:hover td{background:#fff9c4}
 </div>
 
 <script>
-var PASS='azul123';
-var LS_KEY='wr_data_v2';
-var LS_PAGES='wr_pages_v2';
-var activeTab='niche';
-var activeFilter='all';
-var TODAY=new Date();
+// ── CONFIG ─────────────────────────────────────────────────────────────────────
+// IMPORTANTE: Cole a URL do Apps Script deployado aqui depois de deployar
+var SHEET_URL = 'https://script.google.com/macros/s/AKfycbwy1FcTNXOS17WPEDdbpnmdQ-YCbHfOBsOU-PaEIn4rTYX7eTHhr_Vrwf0abPxa1OJs/exec';
+var PASS = 'azul123';
+var LS_KEY = 'wr_data_v2';
+var LS_PAGES = 'wr_pages_v2';
+var activeTab = 'niche';
+var activeFilter = 'all';
+var TODAY = new Date();
 
+// ── PAGE DATA ──────────────────────────────────────────────────────────────────
 var NICHE_PAGES=[
-  {id:'n01',name:'Water Damage',       url:'/how-we-can-help/sell-water-damaged-house/',             blog1:'water-damage-mold-florida',           blog2:''},
-  {id:'n02',name:'Downsize',           url:'/how-we-can-help/sell-house-to-downsize/',               blog1:'downsize-florida-sell-home-fast',     blog2:''},
-  {id:'n03',name:'Fire Damage',        url:'/how-we-can-help/sell-fire-damaged-house/',              blog1:'selling-fire-damaged-house-florida',  blog2:''},
-  {id:'n04',name:'Old Roof',           url:'/how-we-can-help/sell-house-old-roof-florida/',          blog1:'sell-house-old-roof-florida-cash',    blog2:''},
-  {id:'n05',name:'Home Left in Trust', url:'/how-we-can-help/sell-house-left-in-trust/',             blog1:'selling-house-in-trust-florida',      blog2:'force-sale-jointly-owned-property'},
-  {id:'n06',name:'Inherited / Probate',url:'/how-we-can-help/sell-your-inherited-or-probate-house/', blog1:'selling-inherited-house-florida',     blog2:'do-all-heirs-have-to-agree'},
-  {id:'n07',name:'Major Repairs',      url:'/how-we-can-help/sell-house-major-repairs-florida/',     blog1:'sell-house-too-many-repairs-florida', blog2:''},
-  {id:'n08',name:'Foreclosure',        url:'/how-we-can-help/sell-house-in-foreclosure/',            blog1:'how-to-stop-foreclosure-in-florida',  blog2:'tax-lien-stop-foreclosure'},
-  {id:'n09',name:'Bad Tenant',         url:'/how-we-can-help/sell-house-with-bad-tenant/',           blog1:'bad-tenant-destroying-rental-florida',blog2:''},
-  {id:'n10',name:'Squatters',          url:'/how-we-can-help/sell-house-with-squatters-florida/',    blog1:'florida-squatters-rights-law',        blog2:''},
-  {id:'n11',name:'Divorce',            url:'/how-we-can-help/sell-house-during-divorce/',            blog1:'selling-house-during-divorce-mistakes',blog2:''},
-  {id:'n12',name:'Hurricane Damage',   url:'/how-we-can-help/sell-house-hurricane-damage/',          blog1:'hurricane-destroyed-florida-home',    blog2:''},
-  {id:'n13',name:'Condemned',          url:'/how-we-can-help/sell-condemned-house/',                 blog1:'selling-condemned-house-florida',     blog2:''},
-  {id:'n14',name:'Code Violation',     url:'/how-we-can-help/sell-house-code-violations/',           blog1:'selling-house-code-violations-florida',blog2:''},
-  {id:'n15',name:'Financial Hardship', url:'/how-we-can-help/sell-house-financial-hardship/',        blog1:'sell-house-before-bankruptcy-florida',blog2:'sell-house-gambling-debt'},
-  {id:'n16',name:'Owner Incarcerated', url:'/how-we-can-help/sell-house-owner-incarcerated/',        blog1:'selling-house-from-jail-florida',     blog2:''},
-  {id:'n17',name:'Delinquent Taxes',   url:'/how-we-can-help/sell-house-delinquent-taxes/',          blog1:'',                                    blog2:''},
+  {id:'n01',name:'Water Damage',        url:'/how-we-can-help/sell-water-damaged-house/',              blog1:'water-damage-mold-florida',              blog2:''},
+  {id:'n02',name:'Downsize',            url:'/how-we-can-help/sell-house-to-downsize/',                blog1:'downsize-florida-sell-home-fast-cash',    blog2:''},
+  {id:'n03',name:'Fire Damage',         url:'/how-we-can-help/sell-fire-damaged-house/',               blog1:'selling-fire-damaged-house-florida',      blog2:''},
+  {id:'n04',name:'Old Roof',            url:'/how-we-can-help/sell-house-old-roof-florida/',           blog1:'sell-house-old-roof-florida-cash',         blog2:''},
+  {id:'n05',name:'Home Left in Trust',  url:'/how-we-can-help/sell-house-left-in-trust/',              blog1:'selling-house-in-trust-florida',           blog2:'force-sale-jointly-owned-property-florida'},
+  {id:'n06',name:'Inherited / Probate', url:'/how-we-can-help/sell-your-inherited-or-probate-house/',  blog1:'selling-inherited-house-florida',          blog2:'do-all-heirs-have-to-agree-to-sell-property-florida'},
+  {id:'n07',name:'Major Repairs',       url:'/how-we-can-help/sell-house-major-repairs-florida/',      blog1:'sell-house-too-many-repairs-florida-cash', blog2:''},
+  {id:'n08',name:'Foreclosure',         url:'/how-we-can-help/sell-house-in-foreclosure/',             blog1:'how-to-stop-foreclosure-in-florida',       blog2:'tax-lien-stop-foreclosure-florida'},
+  {id:'n09',name:'Bad Tenant',          url:'/how-we-can-help/sell-house-with-bad-tenant/',            blog1:'bad-tenant-destroying-rental-florida',     blog2:''},
+  {id:'n10',name:'Squatters',           url:'/how-we-can-help/sell-house-with-squatters-florida/',     blog1:'florida-squatters-rights-law',             blog2:''},
+  {id:'n11',name:'Divorce',             url:'/how-we-can-help/sell-house-during-divorce/',             blog1:'selling-house-during-divorce-mistakes',    blog2:''},
+  {id:'n12',name:'Hurricane Damage',    url:'/how-we-can-help/sell-house-hurricane-damage/',           blog1:'hurricane-destroyed-your-florida-home-your-options-beyond-insurance', blog2:''},
+  {id:'n13',name:'Condemned',           url:'/how-we-can-help/sell-condemned-house/',                  blog1:'selling-condemned-house-florida',          blog2:''},
+  {id:'n14',name:'Code Violation',      url:'/how-we-can-help/sell-house-code-violations/',            blog1:'selling-house-code-violations-florida',    blog2:''},
+  {id:'n15',name:'Financial Hardship',  url:'/how-we-can-help/sell-house-financial-hardship/',         blog1:'sell-house-before-bankruptcy-florida',     blog2:'sell-house-gambling-debt-florida-cash'},
+  {id:'n16',name:'Owner Incarcerated',  url:'/how-we-can-help/sell-house-owner-incarcerated/',         blog1:'selling-house-from-jail-florida',          blog2:''},
+  {id:'n17',name:'Delinquent Taxes',    url:'/how-we-can-help/sell-house-delinquent-taxes/',           blog1:'tax-lien-stop-foreclosure-florida',        blog2:''},
+  {id:'n18',name:'Vacant House',        url:'/how-we-can-help/sell-vacant-house-florida/',             blog1:'vacant-home-florida-sell-fast-cash',       blog2:''},
 ];
+
 var BLOG_PAGES=[
   {id:'b01',name:'Downsize Florida Sell Home Fast Cash',       url:'/blog/downsize-florida-sell-home-fast-cash/'},
   {id:'b02',name:'Selling House Water Damage Mold Florida',    url:'/blog/selling-house-water-damage-mold-florida/'},
@@ -203,8 +211,9 @@ var BLOG_PAGES=[
   {id:'b18',name:'Sell House Too Many Repairs',                url:'/blog/sell-house-too-many-repairs-florida-cash/'},
   {id:'b19',name:'Sell House Old Roof Florida Cash',           url:'/blog/sell-house-old-roof-florida-cash/'},
   {id:'b20',name:'Tax Lien Stop Foreclosure Florida',          url:'/blog/tax-lien-stop-foreclosure-florida/'},
-  {id:'b21',name:'Sell Elderly Parent House Assisted Living',  url:'/blog/sell-elderly-parent-house-assisted-living-florida/'},
+  {id:'b21',name:'Vacant Home Florida Sell Fast Cash',         url:'/blog/vacant-home-florida-sell-fast-cash/'},
 ];
+
 var CITY_PAGES=[
   {id:'c01',name:'Miami',           url:'/locations/fl/sell-my-house-in-miami-florida/'},
   {id:'c02',name:'Fort Lauderdale', url:'/locations/fl/sell-my-house-in-fort-lauderdale-florida/'},
@@ -221,6 +230,7 @@ var CITY_PAGES=[
   {id:'c13',name:'Homestead',       url:'/locations/fl/sell-my-house-in-homestead-florida/'},
   {id:'c14',name:'Sunrise',         url:'/locations/fl/sell-my-house-in-sunrise-florida/'},
 ];
+
 var ORPHAN_PAGES=[
   {id:'o01',name:'Elderly Assisted Living Blog',      url:'/blog/sell-elderly-parent-house-assisted-living-florida/'},
   {id:'o02',name:'Gambling Debt Blog',                url:'/blog/sell-house-gambling-debt-florida-cash/'},
@@ -234,6 +244,7 @@ var WORKFLOWS=['Pending','Working','Reviewed','Approval','Indexed'];
 var ASSIGNED=['—','Manager','Edsel','Luiza','Rodolfo','Zach','Chris'];
 var state={};
 
+// ── HELPERS ────────────────────────────────────────────────────────────────────
 function allPages(){
   var a=[];
   [NICHE_PAGES,BLOG_PAGES,CITY_PAGES,ORPHAN_PAGES].forEach(function(arr){arr.forEach(function(p){a.push(p);});});
@@ -248,42 +259,103 @@ function pagesForTab(tab){
 
 function updateTabLabels(){
   ['niche','blog','city','orphan'].forEach(function(t){
-    var el=document.getElementById('tab-'+t);
-    if(!el)return;
+    var el=document.getElementById('tab-'+t);if(!el)return;
     var labels={niche:'Niche pages',blog:'Blog posts',city:'City pages',orphan:'Blogs sem niche'};
     el.textContent=labels[t]+' ('+pagesForTab(t).length+')';
   });
-  var total=allPages().length;
-  document.getElementById('total-count').textContent=total;
+  document.getElementById('total-count').textContent=allPages().length;
 }
 
-function loadState(){
-  var saved={};
-  try{saved=JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){}
-  try{var ep=JSON.parse(localStorage.getItem(LS_PAGES));if(ep)EXTRA=ep;}catch(e){}
+function setSyncMsg(msg,cls){
+  var el=document.getElementById('sync-msg');
+  el.textContent=msg;el.className='sync-status '+(cls||'');
+}
+
+// ── STATE / PERSISTENCE ────────────────────────────────────────────────────────
+function initState(){
   allPages().forEach(function(p){
-    state[p.id]=saved[p.id]||{workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
+    if(!state[p.id])state[p.id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
   });
 }
 
-function saveState(){
+function loadFromLocal(){
+  var saved={};
+  try{saved=JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){}
+  try{var ep=JSON.parse(localStorage.getItem(LS_PAGES));if(ep)EXTRA=ep;}catch(e){}
+  initState();
+  Object.keys(saved).forEach(function(id){if(state[id])state[id]=saved[id];});
+}
+
+function saveToLocal(){
   localStorage.setItem(LS_KEY,JSON.stringify(state));
   localStorage.setItem(LS_PAGES,JSON.stringify(EXTRA));
 }
 
+// ── GOOGLE SHEETS SYNC ─────────────────────────────────────────────────────────
+function loadFromSheet(){
+  if(!SHEET_URL||SHEET_URL==='COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    setSyncMsg('⚠️ Apps Script não configurado','sync-err');
+    loadFromLocal();renderActive();updateSummary();updateTabLabels();renderFilters();
+    return;
+  }
+  setSyncMsg('⟳ Carregando...','sync-loading');
+  var script = document.createElement('script');
+  var cbName = 'wr_cb_' + Date.now();
+  window[cbName] = function(data){
+    delete window[cbName];
+    document.head.removeChild(script);
+    if(data && data.ok && data.state){
+      initState();
+      Object.keys(data.state).forEach(function(id){
+        if(state[id])state[id]=data.state[id];
+      });
+      saveToLocal();
+      setSyncMsg('✓ Sincronizado com Google Sheets','sync-ok');
+    } else {
+      setSyncMsg('⚠️ Erro ao carregar — usando dados locais','sync-err');
+      loadFromLocal();
+    }
+    renderActive();updateSummary();updateTabLabels();renderFilters();
+    setTimeout(function(){setSyncMsg('');},4000);
+  };
+  script.onerror = function(){
+    delete window[cbName];
+    setSyncMsg('⚠️ Sem conexão — usando dados locais','sync-err');
+    loadFromLocal();
+    renderActive();updateSummary();updateTabLabels();renderFilters();
+  };
+  script.src = SHEET_URL + '?action=load&callback=' + cbName;
+  document.head.appendChild(script);
+}
+
 function saveAll(){
-  saveState();
-  var m=document.getElementById('saved-msg');
-  m.style.display='inline';
-  setTimeout(function(){m.style.display='none';},2500);
+  saveToLocal();
+  if(!SHEET_URL||SHEET_URL==='COLE_AQUI_A_URL_DO_APPS_SCRIPT'){
+    setSyncMsg('✓ Salvo localmente','sync-ok');
+    setTimeout(function(){setSyncMsg('');},3000);
+    return;
+  }
+  setSyncMsg('⟳ Salvando...','sync-loading');
+  var encoded = encodeURIComponent(JSON.stringify(state));
+  var url = SHEET_URL + '?action=save&data=' + encoded;
+  fetch(url, {mode:'no-cors'})
+    .then(function(){
+      setSyncMsg('✓ Salvo no Google Sheets','sync-ok');
+      setTimeout(function(){setSyncMsg('');},3000);
+    })
+    .catch(function(){
+      setSyncMsg('✓ Salvo localmente (Sheet offline)','sync-ok');
+      setTimeout(function(){setSyncMsg('');},3000);
+    });
 }
 
 function resetAll(){
   if(!confirm('Reset all workflow statuses to Pending?'))return;
   allPages().forEach(function(p){state[p.id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:state[p.id]?state[p.id].notes:''};});
-  saveState();renderActive();updateSummary();
+  saveAll();renderActive();updateSummary();
 }
 
+// ── RENDER ─────────────────────────────────────────────────────────────────────
 function updateSummary(){
   var cnt={Pending:0,Working:0,Reviewed:0,Approval:0,Indexed:0};
   allPages().forEach(function(p){var w=(state[p.id]||{}).workflow||'Pending';if(cnt[w]!==undefined)cnt[w]++;});
@@ -301,14 +373,12 @@ function renderFilters(){
   var bar=document.getElementById('filter-bar');bar.innerHTML='';
   [{val:'all',label:'All'},{val:'Pending',label:'Pending'},{val:'Working',label:'Working'},{val:'Reviewed',label:'Reviewed'},{val:'Approval',label:'Approval'},{val:'Indexed',label:'Indexed'}].forEach(function(f,i){
     var btn=document.createElement('button');
-    btn.className='fb'+(i===0?' on':'');
-    btn.textContent=f.label;
-    btn.setAttribute('data-val',f.val);
+    btn.className='fb'+(activeFilter===f.val?' on':'');
+    btn.textContent=f.label;btn.setAttribute('data-val',f.val);
     btn.addEventListener('click',function(){
       activeFilter=f.val;
       document.querySelectorAll('.fb').forEach(function(b){b.classList.remove('on');});
-      btn.classList.add('on');
-      renderActive();
+      btn.classList.add('on');renderActive();
     });
     bar.appendChild(btn);
   });
@@ -318,8 +388,7 @@ function showTab(tab,btn){
   activeTab=tab;activeFilter='all';
   document.getElementById('search-box').value='';
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
-  btn.classList.add('on');
-  renderFilters();renderActive();
+  btn.classList.add('on');renderFilters();renderActive();
 }
 
 function renderActive(){
@@ -343,7 +412,7 @@ function renderActive(){
     var staleClass=days>=7?' stale':'';
     var daysNote=st.updated?(days===0?'today':days+'d ago'):'—';
     var assignSel='<select class="sel" data-id="'+p.id+'" data-f="assigned" onchange="handleChange(this)">'
-      +ASSIGNED.map(function(a){return'<option'+(st.assigned===a?' selected':'')+'>'+a+'</option>';}).join('')+'</select>';
+      +ASSIGNED.map(function(a){return'<option'+(st.assigned===a?' selected':'')+'>'+esc(a)+'</option>';}).join('')+'</select>';
     var wfSel='<select class="sel" data-id="'+p.id+'" data-f="workflow" onchange="handleChange(this)">'
       +WORKFLOWS.map(function(w){return'<option'+(st.workflow===w?' selected':'')+'>'+w+'</option>';}).join('')+'</select>';
     var startInput='<input type="date" class="date-input" value="'+esc(st.start)+'" data-id="'+p.id+'" data-f="start" onchange="handleChange(this)">';
@@ -376,23 +445,20 @@ function handleChange(el){
   if(!state[id])state[id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
   state[id][f]=val;
   if(f==='workflow')state[id].updated=new Date().toISOString().split('T')[0];
-  saveState();updateSummary();
+  saveToLocal();updateSummary();
   if(f==='workflow')renderActive();
 }
 
 function deletePage(tab,id){
   if(!confirm('Remove this page?'))return;
   EXTRA[tab]=(EXTRA[tab]||[]).filter(function(p){return p.id!==id;});
-  delete state[id];
-  saveState();updateTabLabels();renderActive();updateSummary();
+  delete state[id];saveAll();updateTabLabels();renderActive();updateSummary();
 }
 
-// ── MODAL ──
+// ── MODAL ──────────────────────────────────────────────────────────────────────
 function openModal(){
-  document.getElementById('m-name').value='';
-  document.getElementById('m-url').value='';
-  document.getElementById('m-blog1').value='';
-  document.getElementById('m-blog2').value='';
+  document.getElementById('m-name').value='';document.getElementById('m-url').value='';
+  document.getElementById('m-blog1').value='';document.getElementById('m-blog2').value='';
   document.getElementById('m-tab').value=activeTab;
   document.getElementById('add-modal').classList.add('open');
   setTimeout(function(){document.getElementById('m-name').focus();},100);
@@ -409,23 +475,20 @@ function addPage(){
   if(!EXTRA[tab])EXTRA[tab]=[];
   EXTRA[tab].push({id:id,name:name,url:url,blog1:blog1,blog2:blog2});
   state[id]={workflow:'Pending',assigned:'—',start:'',updated:'',notes:''};
-  saveState();
-  closeModal();
-  // Switch to the tab where it was added
+  saveAll();closeModal();
   document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
   document.getElementById('tab-'+tab).classList.add('on');
-  activeTab=tab;
-  updateTabLabels();renderActive();updateSummary();
+  activeTab=tab;updateTabLabels();renderActive();updateSummary();
 }
 
-// ── AUTH ──
+// ── AUTH ───────────────────────────────────────────────────────────────────────
 function checkPwd(){
   if(document.getElementById('pwd-input').value===PASS){
     sessionStorage.setItem('wr_auth','1');
     document.getElementById('login-screen').style.display='none';
     document.getElementById('main-app').style.display='block';
-    loadState();updateSummary();updateTabLabels();renderFilters();renderActive();
-  }else{
+    loadFromSheet();
+  } else {
     document.getElementById('pwd-error').style.display='block';
     document.getElementById('pwd-input').value='';
     document.getElementById('pwd-input').focus();
@@ -434,8 +497,10 @@ function checkPwd(){
 if(sessionStorage.getItem('wr_auth')==='1'){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('main-app').style.display='block';
-  loadState();updateSummary();updateTabLabels();renderFilters();renderActive();
-}else{setTimeout(function(){document.getElementById('pwd-input').focus();},100);}
+  loadFromSheet();
+} else {
+  setTimeout(function(){document.getElementById('pwd-input').focus();},100);
+}
 </script>
 </body>
 </html>
